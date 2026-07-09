@@ -79,18 +79,17 @@ function TrackContent() {
     setNotFound(false);
     setResult(null);
 
-    const { data, error } = await supabase
-      .from("applications")
-      .select("application_number,status,loan_type,created_at,reviewed_at")
-      .eq("application_number", clean)
-      .maybeSingle();
+    const { data, error } = await supabase.rpc("track_application", {
+      p_number: clean,
+    });
 
     setLoading(false);
-    if (error || !data) {
+    const row = Array.isArray(data) ? data[0] : data;
+    if (error || !row) {
       setNotFound(true);
       return;
     }
-    setResult(data as TrackResult);
+    setResult(row as TrackResult);
   }
 
   // Auto-lookup when arriving from the success page with ?id=
