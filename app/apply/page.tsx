@@ -81,6 +81,21 @@ function ApplyContent() {
 
       const result = await submitApplication(application);
 
+      // Fire-and-forget — never blocks the success redirect
+      fetch("/api/notify-application", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName: application.fullName,
+          email: application.email,
+          phone: application.phone,
+          loanType: application.loanType,
+          loanAmount: application.loanAmount,
+          repaymentPeriod: application.repaymentPeriod,
+          applicationNumber: result.application_number,
+        }),
+      }).catch(() => {}); // silent fail — don't break the UX if email fails
+
       router.push(
         `/apply/success?id=${result.application_number}`
       );
