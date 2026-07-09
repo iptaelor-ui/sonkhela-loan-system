@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+export const dynamic = "force-dynamic";
+
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import Stepper from "@/components/Application/Stepper";
@@ -27,7 +29,7 @@ export interface LoanApplication {
   nrcBack: File | null;
 }
 
-export default function ApplyPage() {
+function ApplyContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -143,5 +145,12 @@ export default function ApplyPage() {
 
       </div>
     </main>
+  );
+}
+export default function ApplyPage() {
+  return (
+    <Suspense fallback={null}>
+      <ApplyContent />
+    </Suspense>
   );
 }
