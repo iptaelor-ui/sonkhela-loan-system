@@ -1,10 +1,13 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
+import { Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { CheckCircle2 } from "lucide-react";
 
-export default function SuccessPage() {
+function SuccessContent() {
   const searchParams = useSearchParams();
 
   const applicationNumber =
@@ -80,5 +83,12 @@ export default function SuccessPage() {
       </div>
 
     </main>
+  );
+}
+export default function SuccessPage() {
+  return (
+    <Suspense fallback={null}>
+      <SuccessContent />
+    </Suspense>
   );
 }
