@@ -20,9 +20,9 @@ export default function AboutPage() {
             Simple Loans. Real People.
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-gray-300">
-            Sonkhela Soft Loans is a registered Zambian microfinance business
-            built on one belief: access to quick, fair credit should be simple,
-            transparent, and within reach of everyday people.
+            Emergencies don&apos;t wait for payday. Sonkhela gets you cash the
+            same day — no queues, no endless paperwork, no judgement. Just bring
+            your NRC and something of value.
           </p>
         </div>
       </section>
@@ -33,17 +33,16 @@ export default function AboutPage() {
           <div className="rounded-3xl bg-white p-10 shadow-lg">
             <h2 className="mb-6 text-3xl font-bold text-[#0B1F4D]">Who We Are</h2>
             <p className="leading-8 text-gray-700">
-              Sonkhela Soft Loans is a <strong>PACRA-registered</strong>{" "}
-              collateral-based lending business headquartered in Lusaka, Zambia.
-              We started with a simple mission — helping students and young
-              professionals access short-term financing quickly, without the
-              paperwork and long waits of traditional lenders.
+              We started on campus, lending to students the banks ignore.
+              Today Sonkhela is a <strong>PACRA-registered</strong> lending
+              business serving UNZA, Mulungushi, UNILUS, NIPA and communities
+              across Lusaka.
             </p>
             <p className="mt-5 leading-8 text-gray-700">
-              Today we serve clients across university campuses and surrounding
-              communities, including the University of Zambia (UNZA), Mulungushi
-              University, UNILUS, and NIPA — providing fast cash secured against
-              valuable assets, with clear terms and no hidden charges.
+              The model is simple: your phone, laptop, or other valuable item
+              secures the loan. It&apos;s stored safely, you get your cash in
+              hours, and the item comes back the moment you repay. Written
+              agreement. Clear rates. No hidden charges — ever.
             </p>
           </div>
 
