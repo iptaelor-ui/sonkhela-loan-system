@@ -4,7 +4,7 @@ import { ShieldCheck, Zap, Users, MapPin } from "lucide-react";
 export const metadata = {
   title: "About Us — Sonkhela Soft Loans",
   description:
-    "Sonkhela Soft Loans is a PACRA-registered microfinance business providing fast, collateral-backed loans to students and communities across Lusaka, Zambia.",
+    "Sonkhela Soft Loans is a PACRA-registered microfinance business providing fast, collateral-backed loans to students and communities across Lusaka and the nation at large.",
 };
 
 export default function AboutPage() {
