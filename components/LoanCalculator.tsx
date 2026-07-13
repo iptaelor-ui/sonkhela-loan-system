@@ -72,38 +72,37 @@ export default function LoanCalculator() {
           </div>
 
           {/* Right Side */}
-          <div className="rounded-2xl bg-[#0B1F4D] p-8 text-white">
+          <div className="rounded-2xl bg-[#0B1F4D] p-6 text-white sm:p-8">
 
-            <h3 className="mb-8 text-2xl font-bold">
+            <h3 className="mb-6 text-xl font-bold sm:mb-8 sm:text-2xl">
               Loan Summary
             </h3>
 
-            <div className="mb-5 flex justify-between">
-              <span>Loan Amount</span>
-              <strong>K {amount.toLocaleString()}</strong>
+            <div className="mb-4 flex items-center justify-between gap-4 text-sm sm:mb-5 sm:text-base">
+              <span className="text-gray-300">Loan Amount</span>
+              <strong className="whitespace-nowrap">K {amount.toLocaleString()}</strong>
             </div>
 
-            <div className="mb-5 flex justify-between">
-              <span>Interest</span>
-              <strong>K {interest.toLocaleString()}</strong>
+            <div className="mb-4 flex items-center justify-between gap-4 text-sm sm:mb-5 sm:text-base">
+              <span className="text-gray-300">Interest</span>
+              <strong className="whitespace-nowrap">K {interest.toLocaleString()}</strong>
             </div>
 
-            <div className="mb-5 flex justify-between">
-              <span>Interest Rate</span>
-              <strong>{rates[period] * 100}%</strong>
+            <div className="mb-4 flex items-center justify-between gap-4 text-sm sm:mb-5 sm:text-base">
+              <span className="text-gray-300">Interest Rate</span>
+              <strong className="whitespace-nowrap">{rates[period] * 100}%</strong>
             </div>
 
-            <div className="mb-5 flex justify-between">
-              <span>Repayment Period</span>
-              <strong>{period} Week{period !== "1" ? "s" : ""}</strong>
+            <div className="mb-4 flex items-center justify-between gap-4 text-sm sm:mb-5 sm:text-base">
+              <span className="text-gray-300">Repayment Period</span>
+              <strong className="whitespace-nowrap">{period} Week{period !== "1" ? "s" : ""}</strong>
             </div>
 
-            <div className="mt-8 flex justify-between border-t border-white/20 pt-8 text-2xl font-bold">
-              <span>Total Repayment</span>
-
-              <span className="text-[#F97316]">
+            <div className="mt-6 border-t border-white/20 pt-6 sm:mt-8 sm:pt-8">
+              <p className="text-sm text-gray-300 sm:text-base">Total Repayment</p>
+              <p className="mt-1 text-3xl font-extrabold text-[#F97316] sm:text-4xl">
                 K {total.toLocaleString()}
-              </span>
+              </p>
             </div>
 
             <Link href="/apply">
