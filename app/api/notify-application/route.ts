@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
 
     const loanName = LOAN_NAMES[loanType] || loanType;
     const firstName = (fullName || "").split(" ")[0] || "there";
-    const trackUrl = `${process.env.NEXT_PUBLIC_SITE_URL || "https://sonkhela-loan-system.vercel.app"}/track?id=${applicationNumber}`;
+    const trackUrl = `${process.env.NEXT_PUBLIC_SITE_URL || "https://sonkhela.com"}/track?id=${applicationNumber}`;
 
     // ── 1. Confirmation email to the client ─────────────────────────────
     const clientHtml = wrap(
@@ -118,7 +118,7 @@ export async function POST(req: NextRequest) {
       </div>
 
       <p>
-        <a href="https://sonkhela-loans-p17j.vercel.app" style="display:inline-block;background:#145f39;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold;">
+        <a href="https://admin.sonkhela.com" style="display:inline-block;background:#145f39;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold;">
           Open Management System →
         </a>
       </p>
