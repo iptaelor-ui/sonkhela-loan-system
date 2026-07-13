@@ -46,8 +46,8 @@ export default async function ContactPage() {
             We&apos;re Here To Help
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-gray-300">
-            Questions about a loan, your application, or repayment? Reach us on
-            any of the channels below — WhatsApp is usually the fastest.
+            A question about a loan, your application, or repayment shouldn&apos;t
+            wait. For the fastest answer, call us directly — or use any channel below.
           </p>
         </div>
       </section>
@@ -56,6 +56,22 @@ export default async function ContactPage() {
       <section className="py-20">
         <div className="mx-auto max-w-7xl px-6">
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+            {phone && (
+              <a
+                href={`tel:${phone}`}
+                className="rounded-3xl bg-white p-8 shadow-md transition hover:-translate-y-1 hover:shadow-xl"
+              >
+                <div className="mb-5 inline-flex rounded-2xl bg-[#FFF4EC] p-4">
+                  <Phone size={28} className="text-[#F97316]" />
+                </div>
+                <h3 className="text-xl font-bold text-[#0B1F4D]">Call Us</h3>
+                <p className="mt-2 font-semibold text-gray-700">{phone}</p>
+                <p className="mt-1 text-sm text-gray-500">
+                  Fastest response — tap to call
+                </p>
+              </a>
+            )}
+
             {phone && (
               <a
                 href={`https://wa.me/${waNumber}`}
@@ -68,23 +84,7 @@ export default async function ContactPage() {
                 </div>
                 <h3 className="text-xl font-bold text-[#0B1F4D]">WhatsApp</h3>
                 <p className="mt-2 font-semibold text-gray-700">{phone}</p>
-                <p className="mt-1 text-sm text-gray-500">
-                  Fastest response — tap to chat
-                </p>
-              </a>
-            )}
-
-            {phone && (
-              <a
-                href={`tel:${phone}`}
-                className="rounded-3xl bg-white p-8 shadow-md transition hover:-translate-y-1 hover:shadow-xl"
-              >
-                <div className="mb-5 inline-flex rounded-2xl bg-[#FFF4EC] p-4">
-                  <Phone size={28} className="text-[#F97316]" />
-                </div>
-                <h3 className="text-xl font-bold text-[#0B1F4D]">Call Us</h3>
-                <p className="mt-2 font-semibold text-gray-700">{phone}</p>
-                <p className="mt-1 text-sm text-gray-500">Mon–Sat</p>
+                <p className="mt-1 text-sm text-gray-500">Chat with us anytime</p>
               </a>
             )}
 
