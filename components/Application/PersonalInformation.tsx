@@ -1,103 +1,201 @@
-import { LoanApplication } from "@/app/apply/page";
+"use client";
 
-interface PersonalInformationProps {
-  application: LoanApplication;
-  updateApplication: (
-    field: keyof LoanApplication,
-    value: any
-  ) => void;
-  onNext: () => void;
+export const dynamic = "force-dynamic";
+
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+
+import Stepper from "@/components/Application/Stepper";
+import PersonalInformation from "@/components/Application/PersonalInformation";
+import LoanInformation from "@/components/Application/LoanInformation";
+import SupportingDocuments from "@/components/Application/SupportingDocuments";
+
+import { submitApplication } from "@/lib/application";
+
+export interface LoanApplication {
+  fullName: string;
+  email: string;
+  phone: string;
+  nrcNumber: string;
+  country: string;
+
+  loanType: string;
+  loanAmount: string;
+  repaymentPeriod: string;
+
+  collateralDescription: string;
+
+  collateralImages: File[];
+  nrcFront: File | null;
+  nrcBack: File | null;
 }
 
-export default function PersonalInformation({
-  application,
-  updateApplication,
-  onNext,
-}: PersonalInformationProps) {
+function ApplyContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const loan = searchParams.get("loan") || "collateral";
+
+  const loanNames: Record<string, string> = {
+    collateral: "Collateral Backed Loans",
+    payslip: "Payslip Backed Loans",
+    student: "Student Loans",
+    marketeer: "Marketeer Loans",
+    business: "Business Loans",
+    "white-book": "White Book Loans",
+  };
+
+  const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(false);
+
+  const [application, setApplication] = useState<LoanApplication>({
+    fullName: "",
+    email: "",
+    phone: "",
+    nrcNumber: "",
+    country: "Zambia",
+
+    loanType: loan,
+
+    loanAmount: "",
+    repaymentPeriod: "1",
+
+    collateralDescription: "",
+
+    collateralImages: [],
+    nrcFront: null,
+    nrcBack: null,
+  });
+
+  const updateApplication = (
+    field: keyof LoanApplication,
+    value: any
+  ) => {
+    setApplication((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  function goToStep3() {
+    const raw = String(application.loanAmount ?? "").replace(/,/g, "").trim();
+    const amount = Number(raw);
+
+    if (raw === "" || !Number.isFinite(amount) || amount <= 0) {
+      alert("Please enter the amount you wish to borrow before continuing.");
+      return;
+    }
+
+    setStep(3);
+  }
+
+  async function handleSubmit() {
+    if (application.country !== "Zambia") {
+      alert("Currently we are only operating in Zambia.");
+      setStep(1);
+      return;
+    }
+
+    const raw = String(application.loanAmount ?? "").replace(/,/g, "").trim();
+    const amount = Number(raw);
+
+    if (raw === "" || !Number.isFinite(amount) || amount <= 0) {
+      alert("Please enter the amount you wish to borrow before submitting.");
+      setStep(2);
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const result = await submitApplication(application);
+
+      // Fire-and-forget — never blocks the success redirect
+      fetch("/api/notify-application", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName: application.fullName,
+          email: application.email,
+          phone: application.phone,
+          loanType: application.loanType,
+          loanAmount: application.loanAmount,
+          repaymentPeriod: application.repaymentPeriod,
+          applicationNumber: result.application_number,
+        }),
+      }).catch(() => {}); // silent fail — don't break the UX if email fails
+
+      router.push(
+        `/apply/success?id=${result.application_number}`
+      );
+    } catch (error) {
+      console.error(error);
+      alert("Failed to submit application.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
-    <div>
-      <h2 className="mb-8 text-3xl font-bold text-[#0B1F4D]">
-        Personal Information
-      </h2>
+    <main className="min-h-screen bg-[#F8FAFC] py-20">
+      <div className="mx-auto max-w-5xl rounded-3xl bg-white p-10 shadow-xl">
 
-      <div className="space-y-6">
+        <div className="mb-10">
 
-        <div>
-          <label className="mb-2 block font-semibold">
-            Full Name
-          </label>
+          <p className="font-semibold uppercase tracking-[0.3em] text-[#F97316]">
+            APPLY NOW
+          </p>
 
-          <input
-            type="text"
-            value={application.fullName}
-            onChange={(e) =>
-              updateApplication("fullName", e.target.value)
-            }
-            placeholder="John Banda"
-            className="w-full rounded-xl border p-4"
+          <h1 className="mt-3 text-4xl font-extrabold text-[#0B1F4D]">
+            Loan Application
+          </h1>
+
+          <p className="mt-3 text-gray-600">
+            Complete your application in three simple steps.
+          </p>
+
+        </div>
+
+        <Stepper currentStep={step} />
+
+        {step === 1 && (
+          <PersonalInformation
+            application={application}
+            updateApplication={updateApplication}
+            onNext={() => setStep(2)}
           />
-        </div>
+        )}
 
-        <div>
-          <label className="mb-2 block font-semibold">
-            Email Address
-          </label>
-
-          <input
-            type="email"
-            value={application.email}
-            onChange={(e) =>
-              updateApplication("email", e.target.value)
-            }
-            placeholder="john@email.com"
-            className="w-full rounded-xl border p-4"
+        {step === 2 && (
+          <LoanInformation
+            application={application}
+            loanName={loanNames[loan]}
+            updateApplication={updateApplication}
+            onBack={() => setStep(1)}
+            onNext={goToStep3}
           />
-        </div>
+        )}
 
-        <div className="grid gap-6 md:grid-cols-2">
-
-          <div>
-            <label className="mb-2 block font-semibold">
-              Phone Number
-            </label>
-
-            <input
-              type="tel"
-              value={application.phone}
-              onChange={(e) =>
-                updateApplication("phone", e.target.value)
-              }
-              placeholder="+260..."
-              className="w-full rounded-xl border p-4"
-            />
-          </div>
-
-          <div>
-            <label className="mb-2 block font-semibold">
-              NRC Number
-            </label>
-
-            <input
-              type="text"
-              value={application.nrcNumber}
-              onChange={(e) =>
-                updateApplication("nrcNumber", e.target.value)
-              }
-              placeholder="123456/12/1"
-              className="w-full rounded-xl border p-4"
-            />
-          </div>
-
-        </div>
+        {step === 3 && (
+          <SupportingDocuments
+            application={application}
+            updateApplication={updateApplication}
+            loanType={loan}
+            onBack={() => setStep(2)}
+            onSubmit={handleSubmit}
+            loading={loading}
+          />
+        )}
 
       </div>
+    </main>
+  );
+}
 
-      <button
-        onClick={onNext}
-        className="mt-10 rounded-xl bg-[#F97316] px-10 py-4 font-semibold text-white hover:bg-[#EA580C]"
-      >
-        Continue
-      </button>
-    </div>
+export default function ApplyPage() {
+  return (
+    <Suspense fallback={null}>
+      <ApplyContent />
+    </Suspense>
   );
 }
