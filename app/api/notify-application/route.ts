@@ -14,14 +14,45 @@ function fmtK(n: number | string) {
   return "K " + Number(n).toLocaleString("en", { minimumFractionDigits: 2 });
 }
 
+/**
+ * One label/value pair, stacked. Label sits above the value, both left
+ * aligned. This is the only layout that stays readable on a phone —
+ * side-by-side columns squeeze long values like email addresses and force
+ * the labels to wrap.
+ */
+function row(label: string, value: string, opts: { emphasis?: boolean } = {}) {
+  const valueStyle = opts.emphasis
+    ? "font-size:1.25rem;font-weight:800;color:#0B1F4D;"
+    : "font-size:1rem;font-weight:700;color:#0d1f14;";
+
+  return `
+    <tr>
+      <td style="padding:0 0 2px;">
+        <span style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em;color:#6b7280;">${label}</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:0 0 16px;word-break:break-word;${valueStyle}">${value}</td>
+    </tr>`;
+}
+
+function divider() {
+  return `
+    <tr>
+      <td style="padding:0 0 16px;">
+        <div style="height:1px;background:#c7d2fe;line-height:1px;font-size:0;">&nbsp;</div>
+      </td>
+    </tr>`;
+}
+
 function wrap(title: string, headerColor: string, inner: string) {
   return `
   <div style="font-family:Arial,Helvetica,sans-serif;max-width:580px;margin:0 auto;border:1px solid #d4e8db;border-radius:12px;overflow:hidden;">
-    <div style="background:${headerColor};padding:24px 28px;">
+    <div style="background:${headerColor};padding:24px 20px;">
       <div style="color:#fff;font-size:1.2rem;font-weight:bold;">Sonkhela Soft Loans</div>
       <div style="color:rgba(255,255,255,0.75);font-size:0.85rem;margin-top:3px;">${title}</div>
     </div>
-    <div style="padding:28px;color:#0d1f14;font-size:0.95rem;line-height:1.7;">
+    <div style="padding:24px 20px;color:#0d1f14;font-size:0.95rem;line-height:1.7;">
       ${inner}
       <p style="margin-top:28px;padding-top:16px;border-top:1px solid #e8f0eb;color:#6b7c72;font-size:0.8rem;">
         Sonkhela Soft Loans · Lusaka, Zambia
@@ -59,6 +90,7 @@ export async function POST(req: NextRequest) {
 
     const loanName = LOAN_NAMES[loanType] || loanType;
     const firstName = (fullName || "").split(" ")[0] || "there";
+    const weeks = `${repaymentPeriod} week${Number(repaymentPeriod) > 1 ? "s" : ""}`;
     const trackUrl = `${process.env.NEXT_PUBLIC_SITE_URL || "https://sonkhela.com"}/track?id=${applicationNumber}`;
 
     // ── 1. Confirmation email to the client ─────────────────────────────
@@ -70,12 +102,12 @@ export async function POST(req: NextRequest) {
       <p>Thank you for applying to <strong>Sonkhela Soft Loans</strong>. We have received your application and our team will review it shortly.</p>
 
       <div style="background:#f4fbf6;border:1px solid #d4e8db;border-radius:10px;padding:20px;margin:20px 0;">
-        <p style="margin:0 0 12px;font-weight:bold;color:#145f39;">Your Application Summary</p>
-        <table style="width:100%;border-collapse:collapse;font-size:0.9rem;">
-          <tr><td style="padding:6px 0;color:#6b7c72;">Application Number</td><td style="text-align:right;font-weight:800;font-family:monospace;">${applicationNumber}</td></tr>
-          <tr><td style="padding:6px 0;color:#6b7c72;">Loan Type</td><td style="text-align:right;font-weight:700;">${loanName}</td></tr>
-          <tr><td style="padding:6px 0;color:#6b7c72;">Amount Requested</td><td style="text-align:right;font-weight:700;">${fmtK(loanAmount)}</td></tr>
-          <tr><td style="padding:6px 0;color:#6b7c72;">Repayment Period</td><td style="text-align:right;font-weight:700;">${repaymentPeriod} week${Number(repaymentPeriod) > 1 ? "s" : ""}</td></tr>
+        <p style="margin:0 0 16px;font-weight:bold;color:#145f39;">Your Application Summary</p>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
+          ${row("Application Number", `<span style="font-family:monospace;">${applicationNumber}</span>`)}
+          ${row("Loan Type", loanName)}
+          ${row("Amount Requested", fmtK(loanAmount))}
+          ${row("Repayment Period", weeks)}
         </table>
       </div>
 
@@ -88,7 +120,7 @@ export async function POST(req: NextRequest) {
 
       <p>You can check your application status anytime:</p>
       <p>
-        <a href="${trackUrl}" style="display:inline-block;background:#F97316;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold;">
+        <a href="${trackUrl}" style="display:block;background:#F97316;color:#fff;padding:14px 24px;border-radius:8px;text-decoration:none;font-weight:bold;text-align:center;">
           Track My Application
         </a>
       </p>
@@ -106,19 +138,20 @@ export async function POST(req: NextRequest) {
       <p>A new loan application has been submitted.</p>
 
       <div style="background:#f0f4ff;border:1px solid #c7d2fe;border-radius:10px;padding:20px;margin:20px 0;">
-        <table style="width:100%;border-collapse:collapse;font-size:0.9rem;">
-          <tr><td style="padding:6px 0;color:#6b7280;">Application No.</td><td style="text-align:right;font-weight:800;font-family:monospace;">${applicationNumber}</td></tr>
-          <tr><td style="padding:6px 0;color:#6b7280;">Name</td><td style="text-align:right;font-weight:700;">${fullName}</td></tr>
-          <tr><td style="padding:6px 0;color:#6b7280;">Phone</td><td style="text-align:right;font-weight:700;">${phone}</td></tr>
-          <tr><td style="padding:6px 0;color:#6b7280;">Email</td><td style="text-align:right;font-weight:700;">${email || "—"}</td></tr>
-          <tr><td style="padding:6px 0;color:#6b7280;">Loan Type</td><td style="text-align:right;font-weight:700;">${loanName}</td></tr>
-          <tr style="border-top:2px solid #c7d2fe;"><td style="padding:8px 0;color:#6b7280;font-weight:bold;">Amount</td><td style="text-align:right;font-weight:800;font-size:1.1rem;color:#0B1F4D;">${fmtK(loanAmount)}</td></tr>
-          <tr><td style="padding:6px 0;color:#6b7280;">Repayment Period</td><td style="text-align:right;font-weight:700;">${repaymentPeriod} week${Number(repaymentPeriod) > 1 ? "s" : ""}</td></tr>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
+          ${row("Application No.", `<span style="font-family:monospace;">${applicationNumber}</span>`)}
+          ${row("Name", fullName)}
+          ${row("Phone", `<a href="tel:${phone}" style="color:#0B1F4D;text-decoration:none;">${phone}</a>`)}
+          ${row("Email", email ? `<a href="mailto:${email}" style="color:#1d4ed8;">${email}</a>` : "—")}
+          ${row("Loan Type", loanName)}
+          ${divider()}
+          ${row("Amount", fmtK(loanAmount), { emphasis: true })}
+          ${row("Repayment Period", weeks)}
         </table>
       </div>
 
       <p>
-        <a href="https://admin.sonkhela.com" style="display:inline-block;background:#145f39;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold;">
+        <a href="https://admin.sonkhela.com" style="display:block;background:#145f39;color:#fff;padding:14px 24px;border-radius:8px;text-decoration:none;font-weight:bold;text-align:center;">
           Open Management System →
         </a>
       </p>
