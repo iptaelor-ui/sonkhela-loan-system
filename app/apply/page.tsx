@@ -17,6 +17,7 @@ export interface LoanApplication {
   email: string;
   phone: string;
   nrcNumber: string;
+  country: string;
 
   loanType: string;
   loanAmount: string;
@@ -52,6 +53,7 @@ function ApplyContent() {
     email: "",
     phone: "",
     nrcNumber: "",
+    country: "Zambia",
 
     loanType: loan,
 
@@ -88,6 +90,12 @@ function ApplyContent() {
   }
 
   async function handleSubmit() {
+    if (application.country !== "Zambia") {
+      alert("Currently we are only operating in Zambia.");
+      setStep(1);
+      return;
+    }
+
     const raw = String(application.loanAmount ?? "").replace(/,/g, "").trim();
     const amount = Number(raw);
 
@@ -114,6 +122,7 @@ function ApplyContent() {
           loanAmount: application.loanAmount,
           repaymentPeriod: application.repaymentPeriod,
           applicationNumber: result.application_number,
+          applicationId: result.id,
         }),
       }).catch(() => {}); // silent fail — don't break the UX if email fails
 
