@@ -75,7 +75,28 @@ function ApplyContent() {
     }));
   };
 
+  function goToStep3() {
+    const raw = String(application.loanAmount ?? "").replace(/,/g, "").trim();
+    const amount = Number(raw);
+
+    if (raw === "" || !Number.isFinite(amount) || amount <= 0) {
+      alert("Please enter the amount you wish to borrow before continuing.");
+      return;
+    }
+
+    setStep(3);
+  }
+
   async function handleSubmit() {
+    const raw = String(application.loanAmount ?? "").replace(/,/g, "").trim();
+    const amount = Number(raw);
+
+    if (raw === "" || !Number.isFinite(amount) || amount <= 0) {
+      alert("Please enter the amount you wish to borrow before submitting.");
+      setStep(2);
+      return;
+    }
+
     try {
       setLoading(true);
 
@@ -143,7 +164,7 @@ function ApplyContent() {
             loanName={loanNames[loan]}
             updateApplication={updateApplication}
             onBack={() => setStep(1)}
-            onNext={() => setStep(3)}
+            onNext={goToStep3}
           />
         )}
 
@@ -162,6 +183,7 @@ function ApplyContent() {
     </main>
   );
 }
+
 export default function ApplyPage() {
   return (
     <Suspense fallback={null}>
