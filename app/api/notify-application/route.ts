@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import { signApplicationId } from "@/lib/approvalToken";
 
 const LOAN_NAMES: Record<string, string> = {
   collateral: "Collateral Backed Loan",
@@ -14,12 +15,6 @@ function fmtK(n: number | string) {
   return "K " + Number(n).toLocaleString("en", { minimumFractionDigits: 2 });
 }
 
-/**
- * One label/value pair, stacked. Label sits above the value, both left
- * aligned. This is the only layout that stays readable on a phone —
- * side-by-side columns squeeze long values like email addresses and force
- * the labels to wrap.
- */
 function row(label: string, value: string, opts: { emphasis?: boolean } = {}) {
   const valueStyle = opts.emphasis
     ? "font-size:1.25rem;font-weight:800;color:#0B1F4D;"
@@ -72,6 +67,7 @@ export async function POST(req: NextRequest) {
       loanAmount,
       repaymentPeriod,
       applicationNumber,
+      applicationId,
     } = body;
 
     const gmailUser = process.env.GMAIL_USER;
@@ -88,12 +84,12 @@ export async function POST(req: NextRequest) {
       auth: { user: gmailUser, pass: gmailPass },
     });
 
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.sonkhela.com";
     const loanName = LOAN_NAMES[loanType] || loanType;
     const firstName = (fullName || "").split(" ")[0] || "there";
     const weeks = `${repaymentPeriod} week${Number(repaymentPeriod) > 1 ? "s" : ""}`;
-    const trackUrl = `${process.env.NEXT_PUBLIC_SITE_URL || "https://sonkhela.com"}/track?id=${applicationNumber}`;
+    const trackUrl = `${siteUrl}/track?id=${applicationNumber}`;
 
-    // ── 1. Confirmation email to the client ─────────────────────────────
     const clientHtml = wrap(
       "Application Received",
       "#145f39",
@@ -130,7 +126,18 @@ export async function POST(req: NextRequest) {
     `
     );
 
-    // ── 2. Alert email to admin ──────────────────────────────────────────
+    const quickApproveUrl = applicationId
+      ? `${siteUrl}/quick-approve?id=${applicationId}&token=${signApplicationId(applicationId)}&no=${encodeURIComponent(applicationNumber || "")}&name=${encodeURIComponent(fullName || "")}`
+      : "";
+
+    const quickApproveButton = quickApproveUrl
+      ? `<p style="margin:0 0 12px;">
+        <a href="${quickApproveUrl}" style="display:block;background:#145f39;color:#fff;padding:14px 24px;border-radius:8px;text-decoration:none;font-weight:bold;text-align:center;">
+          Approve — No Record Needed
+        </a>
+      </p>`
+      : "";
+
     const adminHtml = wrap(
       "New Loan Application",
       "#0B1F4D",
@@ -150,8 +157,10 @@ export async function POST(req: NextRequest) {
         </table>
       </div>
 
-      <p>
-        <a href="https://admin.sonkhela.com" style="display:block;background:#145f39;color:#fff;padding:14px 24px;border-radius:8px;text-decoration:none;font-weight:bold;text-align:center;">
+      ${quickApproveButton}
+
+      <p style="margin:0;">
+        <a href="https://admin.sonkhela.com" style="display:block;background:#fff;color:#0B1F4D;border:2px solid #0B1F4D;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold;text-align:center;">
           Open Management System →
         </a>
       </p>
@@ -160,7 +169,6 @@ export async function POST(req: NextRequest) {
 
     const promises = [];
 
-    // Send client confirmation only if they have an email
     if (email) {
       promises.push(
         transporter.sendMail({
@@ -172,7 +180,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Always send admin alert
     promises.push(
       transporter.sendMail({
         from: `Sonkhela Soft Loans <${gmailUser}>`,
