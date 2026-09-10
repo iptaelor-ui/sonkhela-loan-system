@@ -11,6 +11,7 @@ const LINKS = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About" },
   { href: "/services", label: "Services" },
+  { href: "/blog", label: "Blog" },
   { href: "/contact", label: "Contact" },
   { href: "/track", label: "Track Application" },
 ];
@@ -18,6 +19,9 @@ const LINKS = [
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+
+  const isActive = (href: string) =>
+    href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(href + "/");
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-gray-200/40 bg-white/90 backdrop-blur-md">
@@ -36,12 +40,12 @@ export default function Navbar() {
 
         {/* Desktop navigation */}
         <nav className="hidden items-center gap-10 md:flex">
-          {LINKS.slice(0, 4).map((l) => (
+          {LINKS.slice(0, 5).map((l) => (
             <Link
               key={l.href}
               href={l.href}
               className={`font-medium transition hover:text-[#F97316] ${
-                pathname === l.href ? "text-[#F97316]" : "text-[#0B1F4D]"
+                isActive(l.href) ? "text-[#F97316]" : "text-[#0B1F4D]"
               }`}
             >
               {l.label}
@@ -70,7 +74,7 @@ export default function Navbar() {
       {/* Mobile drawer */}
       <div
         className={`overflow-hidden border-t border-gray-100 bg-white transition-all duration-300 md:hidden ${
-          open ? "max-h-[420px] opacity-100" : "max-h-0 opacity-0"
+          open ? "max-h-[480px] opacity-100" : "max-h-0 opacity-0"
         }`}
       >
         <nav className="flex flex-col px-4 py-3">
@@ -80,7 +84,7 @@ export default function Navbar() {
               href={l.href}
               onClick={() => setOpen(false)}
               className={`rounded-xl px-4 py-3.5 text-base font-semibold transition ${
-                pathname === l.href
+                isActive(l.href)
                   ? "bg-[#FFF4EC] text-[#F97316]"
                   : "text-[#0B1F4D] active:bg-gray-50"
               }`}
